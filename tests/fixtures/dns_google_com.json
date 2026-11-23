@@ -1,0 +1,8 @@
+{
+  "domain": "google.com",
+  "a_records": ["142.250.190.46"],
+  "aaaa_records": ["2a00:1450:4001:830::200e"],
+  "mx_records": ["10 smtp.google.com"],
+  "ns_records": ["ns1.google.com", "ns2.google.com"],
+  "txt_records": ["v=spf1 include:_spf.google.com ~all"]
+}
