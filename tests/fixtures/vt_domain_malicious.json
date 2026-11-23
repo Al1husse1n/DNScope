@@ -1,0 +1,23 @@
+{
+  "data": {
+    "id": "malicious.example.com",
+    "type": "domain",
+    "links": {
+      "self": "https://www.virustotal.com/api/v3/domains/malicious.example.com"
+    },
+    "attributes": {
+      "last_analysis_stats": {
+        "harmless": 10,
+        "malicious": 14,
+        "suspicious": 3,
+        "undetected": 43,
+        "timeout": 0
+      },
+      "categories": {
+        "Forcepoint ThreatSeeker": "malicious",
+        "Sophos": "phishing",
+        "BitDefender": "malware"
+      }
+    }
+  }
+}

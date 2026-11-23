@@ -1,0 +1,22 @@
+{
+  "data": {
+    "id": "clean.example.com",
+    "type": "domain",
+    "links": {
+      "self": "https://www.virustotal.com/api/v3/domains/clean.example.com"
+    },
+    "attributes": {
+      "last_analysis_stats": {
+        "harmless": 65,
+        "malicious": 0,
+        "suspicious": 0,
+        "undetected": 5,
+        "timeout": 0
+      },
+      "categories": {
+        "Forcepoint ThreatSeeker": "business",
+        "Sophos": "business"
+      }
+    }
+  }
+}
