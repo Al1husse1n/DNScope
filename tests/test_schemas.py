@@ -190,3 +190,13 @@ def test_investigation_findings_and_state_roundtrip() -> None:
     dumped = state.model_dump()
     loaded = InvestigationState.model_validate(dumped)
     assert loaded == state
+
+
+def test_evidence_timestamp_is_timezone_aware() -> None:
+    evidence = Evidence(
+        category=EvidenceCategory.BENIGN,
+        label="tz_test",
+        detail="testing tzinfo is set",
+        source="dns",
+    )
+    assert evidence.timestamp.tzinfo is not None

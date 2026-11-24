@@ -11,3 +11,5 @@ class Settings(BaseSettings):
     vt_api_key: str | None = None
     log_level: str = "INFO"
     env: str = "dev"
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.5-flash-lite"

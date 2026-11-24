@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -30,4 +30,4 @@ class Evidence(BaseModel):
     label: str
     detail: str
     source: str  # e.g. "dns", "rdap", "virustotal"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
