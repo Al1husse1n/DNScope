@@ -147,4 +147,3 @@ def build_response_schema() -> dict[str, Any]:
         },
         "required": ["narrative"],
     }
-

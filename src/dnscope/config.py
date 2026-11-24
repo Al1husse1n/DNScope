@@ -16,3 +16,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dnscope"
     api_host: str = "127.0.0.1"
     api_port: int = 8000
+    rate_limit_per_minute: int = 60
+    api_key_header_name: str = "X-API-Key"
+    job_recovery_stale_seconds: int = 60
+    api_key_hmac_secret: str = "dev-insecure-hmac-secret-change-in-production"

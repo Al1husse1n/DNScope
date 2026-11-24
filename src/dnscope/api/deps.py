@@ -1,20 +1,39 @@
-from collections.abc import AsyncIterator
 from typing import Annotated
 
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from dnscope.db.repository import InvestigationRepository
-
-
-async def get_db_session(request: Request) -> AsyncIterator[AsyncSession]:
-    """Yield a session from request.app.state.session_factory; close on exit."""
-    session_factory = request.app.state.session_factory
-    async with session_factory() as session:
-        yield session
+from dnscope.auth.dependencies import get_db_session
+from dnscope.auth.rate_limit import InMemoryRateLimiter
+from dnscope.db.repository import (
+    ApiKeyRepository,
+    InvestigationJobRepository,
+    InvestigationRepository,
+)
+from dnscope.jobs.runner import JobRunner
 
 
 async def get_repository(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> InvestigationRepository:
     return InvestigationRepository(session)
+
+
+async def get_api_key_repository(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> ApiKeyRepository:
+    return ApiKeyRepository(session)
+
+
+async def get_job_repository(
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> InvestigationJobRepository:
+    return InvestigationJobRepository(session)
+
+
+def get_rate_limiter(request: Request) -> InMemoryRateLimiter:
+    return request.app.state.rate_limiter  # type: ignore[no-any-return]
+
+
+def get_job_runner(request: Request) -> JobRunner:
+    return request.app.state.job_runner  # type: ignore[no-any-return]

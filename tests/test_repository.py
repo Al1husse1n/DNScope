@@ -135,3 +135,106 @@ async def test_repository_jsonb_roundtrip(db_session: AsyncSession) -> None:
     assert fetched.findings == complex_findings
     assert fetched.assessment["narrative"] == "Narrative with unicode: 🛡️ threat-detected"
     assert fetched.assessment["score_result"]["score"] == 75
+
+
+# 7. ApiKeyRepository CRUD
+@pytest.mark.asyncio
+async def test_api_key_repository_crud(db_session: AsyncSession) -> None:
+    from dnscope.db.repository import ApiKeyRepository
+
+    repo = ApiKeyRepository(db_session)
+    key = await repo.create(
+        name="repo-key-1",
+        key_hash=f"hash_{uuid.uuid4()}",
+        hmac_prefix="repo123456789012",
+        role="user",
+    )
+    assert key.id is not None
+    assert key.is_active is True
+
+    fetched = await repo.get_by_id(key.id)
+    assert fetched is not None
+    assert fetched.name == "repo-key-1"
+
+    all_keys = await repo.list_all()
+    assert any(k.id == key.id for k in all_keys)
+
+
+# 8. ApiKeyRepository revoke and active lookup
+@pytest.mark.asyncio
+async def test_api_key_repository_revoke(db_session: AsyncSession) -> None:
+    from dnscope.db.repository import ApiKeyRepository
+
+    repo = ApiKeyRepository(db_session)
+    key = await repo.create(
+        name="repo-key-revoke",
+        key_hash=f"hash_{uuid.uuid4()}",
+        hmac_prefix="repo123456789099",
+        role="user",
+    )
+    active_before = await repo.get_active_by_hmac_prefix("repo123456789099")
+    assert len(active_before) == 1
+
+    revoked = await repo.revoke(key.id)
+    assert revoked is True
+
+    active_after = await repo.get_active_by_hmac_prefix("repo123456789099")
+    assert len(active_after) == 0
+
+
+# 9. ApiKeyRepository update_last_used
+@pytest.mark.asyncio
+async def test_api_key_repository_update_last_used(db_session: AsyncSession) -> None:
+    from dnscope.db.repository import ApiKeyRepository
+
+    repo = ApiKeyRepository(db_session)
+    key = await repo.create(
+        name="repo-key-lastused",
+        key_hash=f"hash_{uuid.uuid4()}",
+        hmac_prefix="repo123456789088",
+        role="user",
+    )
+    assert key.last_used_at is None
+
+    await repo.update_last_used(key.id)
+    fetched = await repo.get_by_id(key.id)
+    assert fetched is not None
+    assert fetched.last_used_at is not None
+
+
+# 10. InvestigationJobRepository CRUD and update_status
+@pytest.mark.asyncio
+async def test_job_repository_crud(db_session: AsyncSession) -> None:
+    from dnscope.db.repository import ApiKeyRepository, InvestigationJobRepository
+
+    key_repo = ApiKeyRepository(db_session)
+    k = await key_repo.create("job-user", f"hash_{uuid.uuid4()}", "jobprefix123456", "user")
+
+    job_repo = InvestigationJobRepository(db_session)
+    job = await job_repo.create(api_key_id=k.id, domain="job-test.com")
+    assert job.status == "PENDING"
+
+    await job_repo.update_status(job.id, status="FAILED", error="test failure")
+
+    fetched = await job_repo.get(job.id)
+    assert fetched is not None
+    assert fetched.status == "FAILED"
+    assert fetched.error == "test failure"
+
+
+# 11. InvestigationJobRepository tenant isolation
+@pytest.mark.asyncio
+async def test_job_repository_tenant_isolation(db_session: AsyncSession) -> None:
+    from dnscope.db.repository import ApiKeyRepository, InvestigationJobRepository
+
+    key_repo = ApiKeyRepository(db_session)
+    k1 = await key_repo.create("job-user1", f"hash_{uuid.uuid4()}", "jobprefix123451", "user")
+    k2 = await key_repo.create("job-user2", f"hash_{uuid.uuid4()}", "jobprefix123452", "user")
+
+    job_repo = InvestigationJobRepository(db_session)
+    job1 = await job_repo.create(api_key_id=k1.id, domain="tenant-job.com")
+
+    # Fetch with key1 -> found
+    assert await job_repo.get(job1.id, api_key_id=k1.id) is not None
+    # Fetch with key2 -> None
+    assert await job_repo.get(job1.id, api_key_id=k2.id) is None

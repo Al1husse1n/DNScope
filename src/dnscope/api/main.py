@@ -4,15 +4,20 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from dnscope.api.errors import (
+    auth_error_handler,
     domain_validation_error_handler,
     investigation_timeout_handler,
 )
 from dnscope.api.middleware import RequestContextMiddleware
-from dnscope.api.routes import health, investigations
+from dnscope.api.routes import admin, health, investigations, jobs
+from dnscope.auth.models import AuthError
+from dnscope.auth.rate_limit import InMemoryRateLimiter
 from dnscope.config import Settings
 from dnscope.db.session import build_engine, build_session_factory
 from dnscope.factory import build_supervisor
 from dnscope.graph.workflow import build_investigation_graph
+from dnscope.jobs.recovery import recover_stale_jobs
+from dnscope.jobs.runner import JobRunner
 from dnscope.logging_setup import configure_logging
 from dnscope.validation import DomainValidationError
 
@@ -23,21 +28,38 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
       - configure_logging(Settings())
       - engine = build_engine(settings.database_url)
       - app.state.session_factory = build_session_factory(engine)
+      - run recovery sweep: await recover_stale_jobs(...)
       - supervisor = build_supervisor(settings)
       - app.state.graph = build_investigation_graph(supervisor=supervisor)
+      - app.state.rate_limiter = InMemoryRateLimiter(settings.rate_limit_per_minute)
+      - app.state.job_runner = JobRunner(app.state.graph, app.state.session_factory)
     On shutdown:
+      - await job_runner.await_all(timeout=30.0)
       - await engine.dispose()
     """
     settings = Settings()
     configure_logging(settings)
     engine = build_engine(settings.database_url)
-    app.state.session_factory = build_session_factory(engine)
+    session_factory = build_session_factory(engine)
+
+    app.state.settings = settings
+    app.state.engine = engine
+    app.state.session_factory = session_factory
+
+    # Startup recovery sweep
+    async with session_factory() as session:
+        await recover_stale_jobs(session, stale_seconds=settings.job_recovery_stale_seconds)
+
     supervisor = build_supervisor(settings)
     app.state.graph = build_investigation_graph(supervisor=supervisor)
     app.state.investigation_timeout = 60.0
+    app.state.rate_limiter = InMemoryRateLimiter(settings.rate_limit_per_minute)
+    app.state.job_runner = JobRunner(app.state.graph, session_factory)
+
     try:
         yield
     finally:
+        await app.state.job_runner.await_all(timeout=30.0)
         await engine.dispose()
 
 
@@ -46,8 +68,11 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestContextMiddleware)
     app.add_exception_handler(DomainValidationError, domain_validation_error_handler)
     app.add_exception_handler(TimeoutError, investigation_timeout_handler)
+    app.add_exception_handler(AuthError, auth_error_handler)  # type: ignore[arg-type]
     app.include_router(health.router)
     app.include_router(investigations.router)
+    app.include_router(jobs.router)
+    app.include_router(admin.router)
     return app
 
 

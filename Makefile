@@ -1,4 +1,4 @@
-.PHONY: install test test-live test-gemini-live lint fmt typecheck api db-up db-down migrate migrate-new
+.PHONY: install test test-live test-gemini-live lint fmt typecheck api db-up db-down migrate migrate-new seed-admin-key
 
 install:
 	uv sync --all-extras
@@ -35,3 +35,6 @@ migrate:
 
 migrate-new:
 	uv run alembic -c src/dnscope/db/alembic.ini revision --autogenerate -m "$(m)"
+
+seed-admin-key:
+	uv run python -m dnscope.scripts.seed_admin_key

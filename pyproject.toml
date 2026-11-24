@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "alembic>=1.13",
+    "argon2-cffi>=23.1",
     "asyncpg>=0.30",
     "dnspython>=2.6",
     "fastapi>=0.115",
@@ -57,7 +58,7 @@ testpaths = ["tests"]
 pythonpath = ["src", "."]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-addopts = "-p tests.conftest_db"
+addopts = "-p tests.conftest_db -p tests.conftest_auth"
 markers = [
     "live: tests that hit the real network; skipped by default",
     "gemini_live: tests that hit the real Gemini API; skipped unless GEMINI_API_KEY is set",

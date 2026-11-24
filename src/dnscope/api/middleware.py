@@ -17,13 +17,13 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
     3. Set response header X-Request-ID.
     4. Time the request.
     5. Emit a single structured log line via logger 'dnscope.api.access' with:
-       request_id, method, path, status, duration_ms.
+       request_id, method, path, status, duration_ms, key_id, role.
     6. On exception, log at ERROR with the same fields plus error_type,
        then re-raise (FastAPI's exception handler takes over).
     """
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        request_id = str(uuid.uuid4())
+        request_id = getattr(request.state, "request_id", None) or str(uuid.uuid4())
         request.state.request_id = request_id
         start_time = time.perf_counter()
 
@@ -31,6 +31,8 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
             response.headers["X-Request-ID"] = request_id
+
+            ctx = getattr(request.state, "api_key_context", None)
             logger.info(
                 "request completed",
                 extra={
@@ -39,11 +41,14 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
                     "path": request.url.path,
                     "status": response.status_code,
                     "duration_ms": duration_ms,
+                    "key_id": str(ctx.key_id) if ctx else None,
+                    "role": ctx.role.value if ctx else None,
                 },
             )
             return response
         except Exception as exc:
             duration_ms = round((time.perf_counter() - start_time) * 1000, 2)
+            ctx = getattr(request.state, "api_key_context", None)
             logger.error(
                 "request failed",
                 extra={
@@ -53,6 +58,8 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
                     "status": 500,
                     "duration_ms": duration_ms,
                     "error_type": type(exc).__name__,
+                    "key_id": str(ctx.key_id) if ctx else None,
+                    "role": ctx.role.value if ctx else None,
                 },
             )
             raise
