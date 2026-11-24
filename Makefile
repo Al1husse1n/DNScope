@@ -1,4 +1,4 @@
-.PHONY: install test test-live test-gemini-live lint fmt typecheck
+.PHONY: install test test-live test-gemini-live lint fmt typecheck api db-up db-down migrate migrate-new
 
 install:
 	uv sync --all-extras
@@ -20,3 +20,18 @@ fmt:
 
 typecheck:
 	uv run mypy src
+
+api:
+	uv run uvicorn dnscope.api.main:app --reload --port 8000
+
+db-up:
+	docker compose up -d postgres
+
+db-down:
+	docker compose down
+
+migrate:
+	uv run alembic -c src/dnscope/db/alembic.ini upgrade head
+
+migrate-new:
+	uv run alembic -c src/dnscope/db/alembic.ini revision --autogenerate -m "$(m)"

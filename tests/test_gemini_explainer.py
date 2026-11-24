@@ -251,3 +251,14 @@ async def test_gemini_explainer_live(dummy_score: ScoreResult) -> None:
     assert len(narrative) > 0
     assert not narrative.startswith("Narrative unavailable:")
     assert 50 <= len(narrative) <= 2003
+
+
+def test_gemini_explainer_client_uses_v1beta() -> None:
+    from unittest.mock import patch
+
+    with patch("dnscope.supervisor.gemini_explainer.genai.Client") as mock_client:
+        GeminiExplainer(api_key="fake")
+        assert mock_client.call_count == 1
+        _, kwargs = mock_client.call_args
+        assert "http_options" in kwargs
+        assert kwargs["http_options"].get("api_version") == "v1beta"

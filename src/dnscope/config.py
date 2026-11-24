@@ -13,3 +13,6 @@ class Settings(BaseSettings):
     env: str = "dev"
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash-lite"
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dnscope"
+    api_host: str = "127.0.0.1"
+    api_port: int = 8000
