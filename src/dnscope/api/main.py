@@ -2,6 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from dnscope.api.errors import (
     auth_error_handler,
@@ -64,7 +65,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
+    settings = Settings()
     app = FastAPI(title="dnscope", version="0.1.0", lifespan=lifespan)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_allowed_origins,
+        allow_credentials=False,  # we use X-API-Key header, not cookies
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+        allow_headers=["X-API-Key", "Content-Type"],
+        expose_headers=["X-Request-ID", "Retry-After"],
+        max_age=600,
+    )
     app.add_middleware(RequestContextMiddleware)
     app.add_exception_handler(DomainValidationError, domain_validation_error_handler)
     app.add_exception_handler(TimeoutError, investigation_timeout_handler)

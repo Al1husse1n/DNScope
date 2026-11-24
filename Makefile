@@ -1,4 +1,10 @@
-.PHONY: install test test-live test-gemini-live lint fmt typecheck api db-up db-down migrate migrate-new seed-admin-key
+ifeq ($(OS),Windows_NT)
+	NPM := npm.cmd
+else
+	NPM := npm
+endif
+
+.PHONY: install test test-live test-gemini-live lint fmt typecheck api db-up db-down migrate migrate-new seed-admin-key web-install web-dev web-build web-typecheck web-lint web-test
 
 install:
 	uv sync --all-extras
@@ -38,3 +44,22 @@ migrate-new:
 
 seed-admin-key:
 	uv run python -m dnscope.scripts.seed_admin_key
+
+web-install:
+	cd web && $(NPM) ci
+
+web-dev:
+	cd web && $(NPM) run dev
+
+web-build:
+	cd web && $(NPM) run build
+
+web-typecheck:
+	cd web && $(NPM) run typecheck
+
+web-lint:
+	cd web && $(NPM) run lint
+
+web-test:
+	cd web && $(NPM) run test -- --run
+
