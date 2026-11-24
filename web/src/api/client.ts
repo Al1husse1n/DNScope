@@ -136,3 +136,16 @@ export async function apiFetch<T>(
   // 500 / other
   throw new ApiError(status, rawError, null, requestId, rawDetail || `HTTP error ${status}`);
 }
+
+export async function postJson<T>(
+  path: string,
+  body: unknown,
+  options?: { apiKey?: string | null; signal?: AbortSignal },
+): Promise<T> {
+  return apiFetch<T>(path, {
+    method: 'POST',
+    apiKey: options?.apiKey,
+    body,
+    signal: options?.signal,
+  });
+}

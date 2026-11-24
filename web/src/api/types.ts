@@ -49,3 +49,15 @@ export interface ListInvestigationsResponse {
   limit: number;
   offset: number;
 }
+
+export type JobStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+
+export interface JobResponse {
+  job_id: string;
+  status: JobStatus;
+  domain: string;
+  investigation_id: string | null;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+}

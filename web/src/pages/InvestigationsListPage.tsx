@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useInvestigations } from '../api/investigations';
+import { useSubmissionFlow } from '../hooks/useSubmissionFlow';
 import { RiskBadge } from '../components/RiskBadge';
 import { ScoreGauge } from '../components/ScoreGauge';
 import { RateLimitBanner } from '../components/RateLimitBanner';
 import { ErrorPanel } from '../components/ErrorPanel';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { EmptyState } from '../components/EmptyState';
+import { StatsRow } from '../components/StatsRow';
+import { SubmissionForm } from '../components/SubmissionForm';
+import { PendingInvestigationCard } from '../components/PendingInvestigationCard';
 import { formatRelativeTime } from '../utils/relativeTime';
 
 const PAGE_SIZE = 20;
@@ -14,6 +19,14 @@ const PAGE_SIZE = 20;
 export const InvestigationsListPage: React.FC = () => {
   const [offset, setOffset] = useState(0);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const flow = useSubmissionFlow({
+    onCompleted: (newId) => {
+      queryClient.invalidateQueries({ queryKey: ['investigations'] });
+      navigate(`/investigations/${newId}`);
+    },
+  });
 
   const { data, isLoading, isError, error, refetch } = useInvestigations(PAGE_SIZE, offset);
 
@@ -38,6 +51,7 @@ export const InvestigationsListPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      {/* 1. Page Heading */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold tracking-tight text-white">Investigations</h1>
@@ -48,6 +62,19 @@ export const InvestigationsListPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 2. Stats Row (only if items > 0) */}
+      {items.length > 0 && <StatsRow items={items} />}
+
+      {/* 3. Submission Form */}
+      <SubmissionForm flow={flow} />
+
+      {/* 4. Pending Investigation Card */}
+      <PendingInvestigationCard
+        stage={flow.stage}
+        onNavigate={(id) => navigate(`/investigations/${id}`)}
+        onDismiss={flow.dismiss}
+      />
 
       {isRateLimited && <RateLimitBanner retryAfter={retryAfter} onRetry={() => refetch()} />}
 

@@ -53,7 +53,7 @@ describe('InvestigationsListPage', () => {
     expect(screen.getByText('safe-portal.org')).toBeInTheDocument();
     expect(screen.getByText('CRITICAL')).toBeInTheDocument();
     expect(screen.getByText('LOW')).toBeInTheDocument();
-    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders empty state when items list is empty', () => {

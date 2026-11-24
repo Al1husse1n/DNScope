@@ -1,17 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { InvestigationDetailPage } from './InvestigationDetailPage';
 import { renderWithProviders } from '../test/testUtils';
 import * as investigationsHooks from '../api/investigations';
+import * as flowHooks from '../hooks/useSubmissionFlow';
 import type { InvestigationResponse } from '../api/types';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { ApiError } from '../api/client';
 
 vi.mock('../api/investigations');
+vi.mock('../hooks/useSubmissionFlow');
 
 describe('InvestigationDetailPage', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(flowHooks.useSubmissionFlow).mockReturnValue({
+      stage: { kind: 'idle' },
+      formError: null,
+      submit: vi.fn(),
+      dismiss: vi.fn(),
+    });
   });
 
   it('renders full investigation details, rule evaluation trace, narrative, and inconclusive panel', () => {
@@ -73,5 +81,52 @@ describe('InvestigationDetailPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/missing VT_API_KEY/i)).toBeInTheDocument();
     expect(screen.getByText('REPUTATION')).toBeInTheDocument();
+  });
+
+  it('renders re-run button and clicking it triggers submission flow with the current domain', () => {
+    const mockSubmit = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(flowHooks.useSubmissionFlow).mockReturnValue({
+      stage: { kind: 'idle' },
+      formError: null,
+      submit: mockSubmit,
+      dismiss: vi.fn(),
+    });
+
+    const mockDetail: InvestigationResponse = {
+      id: 'inv-rerun-123',
+      domain: 'rerun-target.org',
+      normalized_domain: 'rerun-target.org',
+      created_at: '2026-11-24T13:14:59.265871Z',
+      assessment: {
+        score_result: {
+          score: 15,
+          risk_level: 'LOW',
+          rule_hits: [],
+          total_points_before_clamp: 15,
+        },
+        rule_trace_explanation: 'clean trace',
+        narrative: 'Narrative summary',
+        inconclusive_checks: [],
+      },
+    };
+
+    vi.mocked(investigationsHooks.useInvestigation).mockReturnValue({
+      data: mockDetail,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as UseQueryResult<InvestigationResponse, ApiError>);
+
+    renderWithProviders(<InvestigationDetailPage />, {
+      initialEntries: ['/investigations/inv-rerun-123'],
+    });
+
+    const rerunBtn = screen.getByRole('button', { name: /re-run investigation/i });
+    expect(rerunBtn).toBeInTheDocument();
+    expect(rerunBtn).not.toBeDisabled();
+
+    fireEvent.click(rerunBtn);
+    expect(mockSubmit).toHaveBeenCalledWith('rerun-target.org');
   });
 });
