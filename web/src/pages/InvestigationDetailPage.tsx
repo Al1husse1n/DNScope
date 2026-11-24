@@ -23,7 +23,7 @@ export const InvestigationDetailPage: React.FC = () => {
   const flow = useSubmissionFlow({
     onCompleted: (newId) => {
       queryClient.invalidateQueries({ queryKey: ['investigations'] });
-      navigate(`/investigations/${newId}`);
+      navigate(`/dashboard/investigations/${newId}`);
     },
   });
 
@@ -53,7 +53,7 @@ export const InvestigationDetailPage: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 text-center">
         <ErrorPanel message="Investigation not found." />
         <Link
-          to="/"
+          to="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm text-sky-400 hover:text-sky-300 font-medium mt-4"
         >
           <ArrowLeft className="w-4 h-4" /> Back to investigations
@@ -71,7 +71,7 @@ export const InvestigationDetailPage: React.FC = () => {
         />
         <div className="mt-4">
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-1.5 text-sm text-sky-400 hover:text-sky-300 font-medium"
           >
             <ArrowLeft className="w-4 h-4" /> Back to investigations
@@ -89,7 +89,7 @@ export const InvestigationDetailPage: React.FC = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 hover:text-slate-200 transition"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to investigations

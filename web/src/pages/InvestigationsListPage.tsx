@@ -24,7 +24,7 @@ export const InvestigationsListPage: React.FC = () => {
   const flow = useSubmissionFlow({
     onCompleted: (newId) => {
       queryClient.invalidateQueries({ queryKey: ['investigations'] });
-      navigate(`/investigations/${newId}`);
+      navigate(`/dashboard/investigations/${newId}`);
     },
   });
 
@@ -34,7 +34,7 @@ export const InvestigationsListPage: React.FC = () => {
   const retryAfter = error?.retryAfter || 60;
 
   const handleRowClick = (id: string) => {
-    navigate(`/investigations/${id}`);
+    navigate(`/dashboard/investigations/${id}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent, id: string) => {

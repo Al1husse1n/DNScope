@@ -34,4 +34,3 @@ export function useJob(jobId: string | null) {
     staleTime: 0,
   });
 }
-

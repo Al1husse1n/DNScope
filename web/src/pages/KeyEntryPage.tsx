@@ -30,7 +30,8 @@ export const KeyEntryPage: React.FC = () => {
     try {
       await testApiKey(trimmed);
       setRawKey(trimmed);
-      navigate(from, { replace: true });
+      const target = from === '/' ? '/dashboard' : from;
+      navigate(target, { replace: true });
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401) {

@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     job_recovery_stale_seconds: int = 60
     api_key_hmac_secret: str = "dev-insecure-hmac-secret-change-in-production"
     cors_allowed_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    public_rate_limit_per_hour: int = 10
+    public_llm_daily_cap: int = 500
+    public_result_ttl_seconds: int = 3600
 
     @field_validator("cors_allowed_origins", mode="before")
     @classmethod

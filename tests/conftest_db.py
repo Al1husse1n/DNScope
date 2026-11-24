@@ -74,7 +74,9 @@ def client(db_engine: AsyncEngine) -> Iterator[TestClient]:
     async def _clean() -> None:
         async with db_engine.connect() as conn:
             await conn.execute(
-                text("TRUNCATE TABLE investigations, investigation_jobs, api_keys CASCADE;")
+                text(
+                    "TRUNCATE TABLE investigations, investigation_jobs, api_keys, public_investigations CASCADE;"
+                )
             )
             await conn.commit()
 

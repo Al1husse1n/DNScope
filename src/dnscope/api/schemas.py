@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -90,3 +91,13 @@ class ApiKeySummary(BaseModel):
     is_active: bool
     created_at: datetime
     last_used_at: datetime | None
+
+
+class PublicInvestigationResponse(BaseModel):
+    share_id: UUID
+    domain: str
+    normalized_domain: str
+    created_at: datetime
+    assessment: SupervisorAssessment
+    narrative_source: Literal["gemini", "deterministic_only"]
+

@@ -1,19 +1,22 @@
+import asyncio
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from dnscope.api.daily_counter import DailyCounter
 from dnscope.api.errors import (
     auth_error_handler,
     domain_validation_error_handler,
     investigation_timeout_handler,
 )
 from dnscope.api.middleware import RequestContextMiddleware
-from dnscope.api.routes import admin, health, investigations, jobs
+from dnscope.api.routes import admin, health, investigations, jobs, public
 from dnscope.auth.models import AuthError
 from dnscope.auth.rate_limit import InMemoryRateLimiter
 from dnscope.config import Settings
+from dnscope.db.public_repository import PublicResultRepository
 from dnscope.db.session import build_engine, build_session_factory
 from dnscope.factory import build_supervisor
 from dnscope.graph.workflow import build_investigation_graph
@@ -55,11 +58,33 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.graph = build_investigation_graph(supervisor=supervisor)
     app.state.investigation_timeout = 60.0
     app.state.rate_limiter = InMemoryRateLimiter(settings.rate_limit_per_minute)
+    app.state.public_limiter = InMemoryRateLimiter(
+        limit_per_minute=settings.public_rate_limit_per_hour,
+        window_seconds=3600.0,
+    )
+    app.state.daily_llm_counter = DailyCounter(cap=settings.public_llm_daily_cap)
     app.state.job_runner = JobRunner(app.state.graph, session_factory)
+
+    async def cleanup_loop() -> None:
+        while True:
+            try:
+                await asyncio.sleep(600)
+                async with session_factory() as session:
+                    repo = PublicResultRepository(session)
+                    await repo.delete_expired()
+            except asyncio.CancelledError:
+                break
+            except Exception:
+                pass
+
+    cleanup_task = asyncio.create_task(cleanup_loop())
 
     try:
         yield
     finally:
+        cleanup_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await cleanup_task
         await app.state.job_runner.await_all(timeout=30.0)
         await engine.dispose()
 
@@ -84,6 +109,7 @@ def create_app() -> FastAPI:
     app.include_router(investigations.router)
     app.include_router(jobs.router)
     app.include_router(admin.router)
+    app.include_router(public.router)
     return app
 
 
