@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, suppress
 
@@ -24,6 +25,8 @@ from dnscope.jobs.recovery import recover_stale_jobs
 from dnscope.jobs.runner import JobRunner
 from dnscope.logging_setup import configure_logging
 from dnscope.validation import DomainValidationError
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -74,8 +77,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                     await repo.delete_expired()
             except asyncio.CancelledError:
                 break
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("Background cleanup task failed: %s", exc)
 
     cleanup_task = asyncio.create_task(cleanup_loop())
 

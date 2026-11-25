@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import CursorResult, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dnscope.db.models import PublicInvestigation
@@ -55,5 +55,6 @@ class PublicResultRepository:
         stmt = delete(PublicInvestigation).where(PublicInvestigation.expires_at < now)
         res = await self._session.execute(stmt)
         await self._session.commit()
+        assert isinstance(res, CursorResult)
         return int(res.rowcount or 0)
 

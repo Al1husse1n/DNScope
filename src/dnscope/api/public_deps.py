@@ -1,5 +1,5 @@
 import hashlib
-from typing import cast
+from typing import Annotated, cast
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Request, status
@@ -33,7 +33,7 @@ def get_public_limiter(request: Request) -> InMemoryRateLimiter:
 
 async def check_public_rate_limit(
     request: Request,
-    limiter: InMemoryRateLimiter = Depends(get_public_limiter),
+    limiter: Annotated[InMemoryRateLimiter, Depends(get_public_limiter)],
 ) -> None:
     """Raise HTTPException(429) with Retry-After header if exceeded."""
     client_key = get_client_ip(request)

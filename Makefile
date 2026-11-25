@@ -4,7 +4,7 @@ else
 	NPM := npm
 endif
 
-.PHONY: install test test-live test-gemini-live lint fmt typecheck api db-up db-down migrate migrate-new seed-admin-key web-install web-dev web-build web-typecheck web-lint web-test
+.PHONY: install test test-live test-gemini-live lint fmt typecheck api db-up db-down migrate migrate-new seed-admin-key web-install web-dev web-build web-typecheck web-lint web-test compose-prod compose-prod-down
 
 install:
 	uv sync --all-extras
@@ -62,4 +62,10 @@ web-lint:
 
 web-test:
 	cd web && $(NPM) run test -- --run
+
+compose-prod:
+	docker compose -f docker-compose.prod.yml up --build
+
+compose-prod-down:
+	docker compose -f docker-compose.prod.yml down
 

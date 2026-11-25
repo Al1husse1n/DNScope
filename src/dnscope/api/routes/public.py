@@ -30,7 +30,7 @@ async def public_investigate(
 ) -> JSONResponse:
     """Anonymous investigation. No auth. IP rate-limited."""
     # 1. Validate domain -> 400 on invalid (before any work)
-    norm_domain = validate_domain(payload.domain)
+    norm_domain = validate_domain(payload.domain).normalized
 
     # 2. Decide LLM mode
     settings: Settings = request.app.state.settings

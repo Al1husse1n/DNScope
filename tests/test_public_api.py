@@ -1,4 +1,3 @@
-import asyncio
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -12,7 +11,6 @@ from dnscope.api.main import app
 from dnscope.auth.rate_limit import InMemoryRateLimiter
 from dnscope.db.models import PublicInvestigation
 from dnscope.db.public_repository import PublicResultRepository
-from dnscope.db.session import build_session_factory
 from dnscope.schemas.common import RiskLevel
 from dnscope.schemas.scoring import RuleHit, ScoreResult
 from dnscope.schemas.supervisor import SupervisorAssessment
@@ -50,12 +48,28 @@ class FakeGraph:
 
 
 @pytest.fixture(autouse=True)
-def reset_public_state() -> None:
-    """Reset public limiter and daily counter before each test."""
+def reset_public_state(request: pytest.FixtureRequest) -> None:
+    """Reset public limiter and daily counter after TestClient lifespan."""
+    for name in ("no_key_client", "client", "admin_client"):
+        if name in request.fixturenames:
+            request.getfixturevalue(name)
+            break
     app.state.public_limiter = InMemoryRateLimiter(limit_per_minute=10, window_seconds=3600.0)
     app.state.daily_llm_counter = DailyCounter(cap=500)
-    fake_graph = FakeGraph()
-    app.state.graph = fake_graph
+    app.state.graph = FakeGraph()
+    app.state.null_graph = FakeGraph(
+        canned_assessment=SupervisorAssessment(
+            score_result=ScoreResult(
+                score=10,
+                risk_level=RiskLevel.LOW,
+                rule_hits=[],
+                total_points_before_clamp=10,
+            ),
+            rule_trace_explanation="trace",
+            narrative=None,
+            inconclusive_checks=[],
+        )
+    )
 
 
 def test_public_investigate_success_no_key(no_key_client: TestClient) -> None:
@@ -184,7 +198,8 @@ def test_ttl_expiry_lazy_deletion(no_key_client: TestClient) -> None:
             session.add(inv)
             await session.commit()
 
-    asyncio.run(_insert_expired())
+    assert no_key_client.portal is not None
+    no_key_client.portal.call(_insert_expired)
 
     # GET request should return 404 and lazily delete
     res = no_key_client.get(f"/r/{share_id}")
@@ -197,11 +212,11 @@ def test_ttl_expiry_lazy_deletion(no_key_client: TestClient) -> None:
             item = await repo.get(share_id)
             assert item is None
 
-    asyncio.run(_verify_deleted())
+    no_key_client.portal.call(_verify_deleted)
 
 
 def test_daily_llm_cap_fallback(no_key_client: TestClient) -> None:
-    """9. Daily LLM cap: set cap=2; 3rd request -> narrative_source: deterministic_only and narrative is None."""
+    """9. Daily LLM cap: set cap=2; 3rd request -> narrative_source: deterministic_only and NullExplainer narrative."""
     app.state.daily_llm_counter = DailyCounter(cap=2)
 
     # 1st request -> gemini
@@ -219,7 +234,7 @@ def test_daily_llm_cap_fallback(no_key_client: TestClient) -> None:
     assert r3.status_code == 201
     data3 = r3.json()
     assert data3["narrative_source"] == "deterministic_only"
-    assert data3["assessment"]["narrative"] is None
+    assert data3["assessment"]["narrative"] == "Narrative generation not enabled."
 
 
 def test_daily_cap_resets_at_utc_midnight(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -266,3 +281,20 @@ def test_api_key_endpoints_still_work_regression(admin_client: TestClient) -> No
     res = admin_client.post("/investigations", json={"domain": "key-regression.com"})
     assert res.status_code == 202
     assert "job_id" in res.json()
+
+
+def test_public_investigate_normalized_domain_is_string(
+    no_key_client: TestClient,
+) -> None:
+    """Regression test for P7 bug: normalized_domain must be a str,
+    not a ValidatedDomain dataclass, in both the response and the DB row."""
+    res = no_key_client.post("/investigate", json={"domain": "Example.COM."})
+    assert res.status_code == 201
+    body = res.json()
+    assert isinstance(body["normalized_domain"], str)
+    assert body["normalized_domain"] == "example.com"
+    # Verify the DB row also stores it as a string
+    share_id = body["share_id"]
+    followup = no_key_client.get(f"/r/{share_id}")
+    assert followup.status_code == 200
+    assert isinstance(followup.json()["normalized_domain"], str)
