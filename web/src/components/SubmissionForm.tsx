@@ -65,31 +65,34 @@ const SubmissionFormInner: React.FC<SubmissionFormInnerProps> = ({ onSubmitted, 
     !isValidLength || isSubmitting || isPolling || (isRateLimited && rateLimitSeconds > 0);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6 shadow-xl">
-      {/* Rate limit banner */}
-      {flow.stage.kind === 'rate_limited' && (
-        <div className="mb-4">
-          <RateLimitBanner retryAfter={flow.stage.retryAfter} onRetry={handleRetryRateLimit} />
-        </div>
-      )}
-
-      {/* Inline Form Error */}
-      {flow.formError && (
-        <div
-          role="alert"
-          className="text-xs font-mono font-medium text-rose-400 bg-rose-950/40 border border-rose-800/80 rounded-lg px-3.5 py-2.5 mb-3.5"
-        >
-          {flow.formError}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <label htmlFor="domain-input" className="block text-sm font-medium text-slate-300">
+    <div className="rounded-xl bg-band border border-border overflow-hidden mb-6">
+      <div className="px-5 py-2.5 text-xs text-muted-foreground">
+        <label htmlFor="domain-input" className="cursor-pointer">
           Investigate a domain
         </label>
-        <div className="flex flex-col sm:flex-row gap-3">
+      </div>
+
+      <div className="p-5 bg-card border-t border-border rounded-[calc(0.75rem-1px)]">
+        {/* Rate limit banner */}
+        {flow.stage.kind === 'rate_limited' && (
+          <div className="mb-4">
+            <RateLimitBanner retryAfter={flow.stage.retryAfter} onRetry={handleRetryRateLimit} />
+          </div>
+        )}
+
+        {/* Inline Form Error */}
+        {flow.formError && (
+          <div
+            role="alert"
+            className="text-xs font-mono text-risk-critical-fg bg-risk-critical-bg border border-border rounded-xl px-3.5 py-2.5 mb-3.5"
+          >
+            {flow.formError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-subtle-foreground">
               <Search className="w-4 h-4" />
             </div>
             <input
@@ -101,13 +104,13 @@ const SubmissionFormInner: React.FC<SubmissionFormInnerProps> = ({ onSubmitted, 
               placeholder="example.com or suspicious-domain.net"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 font-mono text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-input border border-border-strong text-foreground placeholder-muted-foreground/80 font-mono text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed transition"
             />
           </div>
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium shadow transition font-sans"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-primary-foreground text-sm transition font-sans cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {isSubmitting ? (
               <>
@@ -118,8 +121,8 @@ const SubmissionFormInner: React.FC<SubmissionFormInnerProps> = ({ onSubmitted, 
               <span>Investigate</span>
             )}
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

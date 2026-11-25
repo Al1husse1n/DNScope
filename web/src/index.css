@@ -2,7 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  min-height: 100vh;
+:root {
+  --background: #040c16;
+  --foreground: #d8e6f3;
+  --muted-foreground: #88a4be;
+  --subtle-foreground: #5e7c99;
+  --card: #091727;
+  --band: #0d2035;
+  --input: #061220;
+  --popover: #0f253d;
+  --border: #17324d;
+  --border-strong: #234b73;
+  --primary: #0ea5e9;
+  --primary-hover: #38bdf8;
+  --primary-foreground: #031322;
+  --secondary: #12283f;
+  --secondary-hover: #183452;
+  --secondary-foreground: #d8e6f3;
+  --accent: #38bdf8;
+
+  --risk-low-bg: #0c2b26;
+  --risk-low-fg: #6ee7b7;
+  --risk-medium-bg: #2c210e;
+  --risk-medium-fg: #fcd34d;
+  --risk-high-bg: #321a12;
+  --risk-high-fg: #fdba74;
+  --risk-critical-bg: #331318;
+  --risk-critical-fg: #fca5a5;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  th,
+  b,
+  strong {
+    font-weight: inherit;
+  }
+
+  input[type='text'],
+  input[type='password'] {
+    background-color: var(--input);
+    color: var(--foreground);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

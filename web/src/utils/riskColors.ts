@@ -3,29 +3,29 @@ import type { RiskLevel } from '../api/types';
 export function getRiskColors(level: RiskLevel | string): string {
   switch (level) {
     case 'LOW':
-      return 'bg-emerald-950 text-emerald-300 border-emerald-800';
+      return 'bg-risk-low-bg text-risk-low-fg';
     case 'MEDIUM':
-      return 'bg-amber-950 text-amber-300 border-amber-800';
+      return 'bg-risk-medium-bg text-risk-medium-fg';
     case 'HIGH':
-      return 'bg-orange-950 text-orange-300 border-orange-800';
+      return 'bg-risk-high-bg text-risk-high-fg';
     case 'CRITICAL':
-      return 'bg-red-950 text-red-300 border-red-800';
+      return 'bg-risk-critical-bg text-risk-critical-fg';
     default:
-      return 'bg-slate-800 text-slate-300 border-slate-700';
+      return 'bg-secondary text-muted-foreground';
   }
 }
 
 export function getRiskFillColor(level: RiskLevel | string): string {
   switch (level) {
     case 'LOW':
-      return '#10b981';
+      return '#34d399';
     case 'MEDIUM':
-      return '#f59e0b';
+      return '#fbbf24';
     case 'HIGH':
-      return '#f97316';
+      return '#fb923c';
     case 'CRITICAL':
-      return '#ef4444';
+      return '#f87171';
     default:
-      return '#64748b';
+      return '#5e7c99';
   }
 }

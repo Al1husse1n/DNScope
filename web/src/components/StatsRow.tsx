@@ -21,47 +21,41 @@ export const StatsRow: React.FC<StatsRowProps> = ({ items }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      {/* Total Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-        <div className="text-[11px] font-mono font-semibold tracking-wider uppercase text-slate-400">
-          TOTAL
-        </div>
-        <div data-testid="stat-total" className="text-2xl font-bold font-mono text-slate-100 mt-1">
+      <div className="bg-card border border-border rounded-xl p-4">
+        <div className="text-xs text-muted-foreground">TOTAL</div>
+        <div
+          data-testid="stat-total"
+          className="text-2xl font-mono tabular-nums text-foreground mt-1"
+        >
           {total}
         </div>
-        <div className="text-xs text-slate-500 font-mono mt-1">on this page</div>
+        <div className="text-xs text-subtle-foreground mt-1">on this page</div>
       </div>
 
-      {/* High Risk Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-        <div className="text-[11px] font-mono font-semibold tracking-wider uppercase text-slate-400">
-          HIGH RISK
-        </div>
+      <div className="bg-card border border-border rounded-xl p-4">
+        <div className="text-xs text-muted-foreground">HIGH RISK</div>
         <div
           data-testid="stat-high-risk"
-          className={`text-2xl font-bold font-mono mt-1 ${
-            highRiskCount > 0 ? 'text-amber-400' : 'text-slate-400'
+          className={`text-2xl font-mono tabular-nums mt-1 ${
+            highRiskCount > 0 ? 'text-risk-high-fg' : 'text-subtle-foreground'
           }`}
         >
           {highRiskCount}
         </div>
-        <div className="text-xs text-slate-500 font-mono mt-1">on this page</div>
+        <div className="text-xs text-subtle-foreground mt-1">on this page</div>
       </div>
 
-      {/* Last 24h Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-        <div className="text-[11px] font-mono font-semibold tracking-wider uppercase text-slate-400">
-          LAST 24H
-        </div>
+      <div className="bg-card border border-border rounded-xl p-4">
+        <div className="text-xs text-muted-foreground">LAST 24H</div>
         <div
           data-testid="stat-recent"
-          className={`text-2xl font-bold font-mono mt-1 ${
-            recentCount > 0 ? 'text-emerald-400' : 'text-slate-400'
+          className={`text-2xl font-mono tabular-nums mt-1 ${
+            recentCount > 0 ? 'text-risk-low-fg' : 'text-subtle-foreground'
           }`}
         >
           {recentCount}
         </div>
-        <div className="text-xs text-slate-500 font-mono mt-1">on this page</div>
+        <div className="text-xs text-subtle-foreground mt-1">on this page</div>
       </div>
     </div>
   );

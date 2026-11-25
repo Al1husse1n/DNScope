@@ -1,9 +1,40 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        'muted-foreground': 'var(--muted-foreground)',
+        'subtle-foreground': 'var(--subtle-foreground)',
+        card: 'var(--card)',
+        band: 'var(--band)',
+        input: 'var(--input)',
+        popover: 'var(--popover)',
+        border: 'var(--border)',
+        'border-strong': 'var(--border-strong)',
+        primary: 'var(--primary)',
+        'primary-hover': 'var(--primary-hover)',
+        'primary-foreground': 'var(--primary-foreground)',
+        secondary: 'var(--secondary)',
+        'secondary-hover': 'var(--secondary-hover)',
+        'secondary-foreground': 'var(--secondary-foreground)',
+        accent: 'var(--accent)',
+        'risk-low-bg': 'var(--risk-low-bg)',
+        'risk-low-fg': 'var(--risk-low-fg)',
+        'risk-medium-bg': 'var(--risk-medium-bg)',
+        'risk-medium-fg': 'var(--risk-medium-fg)',
+        'risk-high-bg': 'var(--risk-high-bg)',
+        'risk-high-fg': 'var(--risk-high-fg)',
+        'risk-critical-bg': 'var(--risk-critical-bg)',
+        'risk-critical-fg': 'var(--risk-critical-fg)',
+      },
+    },
   },
   plugins: [],
 };

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Shield, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
 import { testApiKey } from '../api/keys';
 import { ApiError, getApiBaseUrl } from '../api/client';
+import { BrandMark } from '../components/BrandMark';
 
 export const KeyEntryPage: React.FC = () => {
   const { rawKey, setRawKey } = useAuth();
@@ -50,22 +51,24 @@ export const KeyEntryPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-slate-950">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl shadow-sky-950/20">
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
+      <div className="w-full max-w-md bg-card border border-border rounded-xl p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 mb-3">
-            <Shield className="w-6 h-6" />
+          <div className="inline-flex justify-center mb-3">
+            <BrandMark size="md" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white font-mono">dnscope</h1>
-          <p className="text-sm text-slate-400 mt-1">Domain threat investigation</p>
+          <h1 className="text-2xl tracking-tight text-foreground font-sans">
+            dn<span className="text-accent">scope</span>
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">Domain threat investigation</p>
         </div>
 
         {rawKey && (
-          <div className="mb-6 p-3 rounded-lg bg-emerald-950/40 border border-emerald-900/60 text-xs text-emerald-300 flex items-center justify-between">
+          <div className="mb-6 p-3 rounded-xl bg-risk-low-bg border border-border text-xs text-risk-low-fg flex items-center justify-between">
             <span>You&apos;re authenticated.</span>
             <Link
               to="/"
-              className="inline-flex items-center gap-1 font-semibold text-emerald-400 hover:text-emerald-300"
+              className="inline-flex items-center gap-1 text-risk-low-fg hover:text-foreground"
             >
               Continue to investigations <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -74,11 +77,8 @@ export const KeyEntryPage: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="apiKeyInput"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5"
-            >
-              API Key
+            <label htmlFor="apiKeyInput" className="block text-xs text-muted-foreground mb-1.5">
+              API key
             </label>
             <div className="relative">
               <input
@@ -87,21 +87,21 @@ export const KeyEntryPage: React.FC = () => {
                 value={apiKeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
                 placeholder="Paste your X-API-Key..."
-                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-750 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent font-mono text-sm pr-10"
+                className="w-full px-3.5 py-2.5 bg-input border border-border-strong rounded-xl text-foreground placeholder-muted-foreground/80 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent font-mono text-sm pr-10"
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowKey(!showKey)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-subtle-foreground hover:text-foreground p-1 cursor-pointer"
                 aria-label={showKey ? 'Hide key' : 'Show key'}
               >
                 {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-subtle-foreground">
               Need a key? An admin can generate one with{' '}
-              <code className="bg-slate-800 text-slate-300 px-1 py-0.5 rounded font-mono">
+              <code className="bg-secondary text-muted-foreground px-1.5 py-0.5 rounded font-mono">
                 make seed-admin-key
               </code>
               .
@@ -111,7 +111,7 @@ export const KeyEntryPage: React.FC = () => {
           {errorMessage && (
             <div
               role="alert"
-              className="p-3 rounded-lg bg-red-950/60 border border-red-800 text-red-200 text-xs"
+              className="p-3 rounded-xl bg-risk-critical-bg border border-border text-risk-critical-fg text-xs"
             >
               {errorMessage}
             </div>
@@ -120,7 +120,7 @@ export const KeyEntryPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-medium text-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed shadow-lg shadow-sky-600/20"
+            className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-50 text-primary-foreground text-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

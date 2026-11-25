@@ -58,26 +58,24 @@ export const PendingInvestigationCard: React.FC<PendingInvestigationCardProps> =
     return (
       <div
         role="alert"
-        className="bg-rose-950/40 border border-rose-800/80 rounded-xl p-5 mb-6 text-rose-200 shadow-lg"
+        className="bg-risk-critical-bg border border-border rounded-xl p-5 mb-6 text-risk-critical-fg"
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
             <div>
-              <div className="font-semibold text-rose-100 flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <span>✗ Investigation failed</span>
                 {stage.domain && (
-                  <span className="font-mono text-sm text-rose-300 font-normal">
-                    — {stage.domain}
-                  </span>
+                  <span className="font-mono text-sm text-risk-critical-fg">— {stage.domain}</span>
                 )}
               </div>
-              <div className="text-sm text-rose-300/90 mt-1">{stage.error}</div>
+              <div className="text-sm text-risk-critical-fg mt-1">{stage.error}</div>
             </div>
           </div>
           <button
             onClick={onDismiss}
-            className="px-3 py-1.5 rounded text-xs font-medium bg-rose-900/60 hover:bg-rose-800/80 text-rose-200 border border-rose-700/60 transition"
+            className="px-3 py-1.5 rounded-xl text-xs bg-secondary hover:bg-secondary-hover text-secondary-foreground transition cursor-pointer"
           >
             Dismiss
           </button>
@@ -89,46 +87,43 @@ export const PendingInvestigationCard: React.FC<PendingInvestigationCardProps> =
   // Completed state
   if (stage.kind === 'completed') {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Check className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span className="font-semibold text-emerald-100">✓ Investigation complete</span>
+      <div className="rounded-xl bg-band border border-border overflow-hidden mb-6">
+        <div className="flex items-center justify-between px-5 py-3">
+          <div className="flex items-center gap-2.5">
+            <Check className="w-4 h-4 text-risk-low-fg shrink-0" />
+            <span className="text-sm text-foreground">✓ Investigation complete</span>
           </div>
           <button
             onClick={() => onNavigate(stage.investigationId)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium bg-emerald-700 hover:bg-emerald-600 text-white transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs bg-primary hover:bg-primary-hover text-primary-foreground transition cursor-pointer"
           >
             View <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-          {STAGES.map((label, index) => (
-            <div
-              key={label}
-              className="flex items-center gap-2.5 p-2.5 rounded-lg border text-xs font-mono bg-slate-950/60 border-emerald-900/60 text-emerald-300"
-            >
-              <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                <span className="text-emerald-400 font-bold" data-testid={`stage-${index}-done`}>
-                  ✓
-                </span>
+        <div className="p-5 bg-card border-t border-border rounded-[calc(0.75rem-1px)] space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {STAGES.map((label, index) => (
+              <div
+                key={label}
+                className="flex items-center gap-2.5 p-2.5 rounded-lg text-xs bg-risk-low-bg text-risk-low-fg"
+              >
+                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <span data-testid={`stage-${index}-done`}>✓</span>
+                </div>
+                <span className="truncate">{label}</span>
               </div>
-              <span className="truncate">{label}</span>
-            </div>
-          ))}
-        </div>
-        <div className="text-[11px] text-slate-500 font-mono text-center pt-1 border-t border-slate-800/60">
-          Progress is approximate. Actual timing varies.
+            ))}
+          </div>
+          <div className="text-xs text-subtle-foreground text-center pt-2 border-t border-border">
+            Progress is approximate. Actual timing varies.
+          </div>
         </div>
       </div>
     );
   }
 
   // Polling state
-  const isCompleted = false;
-
   const getStageStatus = (index: number) => {
-    if (isCompleted) return 'done';
     if (index === 0) {
       if (elapsed < 2) return 'waiting';
       if (elapsed < 5) return 'running';
@@ -144,67 +139,62 @@ export const PendingInvestigationCard: React.FC<PendingInvestigationCardProps> =
       if (elapsed < 11) return 'running';
       return 'done';
     }
-    // index === 3
     if (elapsed < 11) return 'waiting';
     return 'running';
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6 shadow-xl space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="rounded-xl bg-band border border-border overflow-hidden mb-6">
+      <div className="flex items-center justify-between flex-wrap gap-2 px-5 py-3">
         <div className="flex items-center gap-3">
-          <Loader2 className="w-5 h-5 text-sky-400 animate-spin shrink-0" />
-          <span className="font-mono text-lg font-bold text-white">{stage.domain}</span>
+          <Loader2 className="w-4 h-4 text-accent animate-spin shrink-0" />
+          <span className="font-mono text-base text-foreground">{stage.domain}</span>
         </div>
-        <span className="text-xs font-mono text-slate-400">Running for {elapsed}s…</span>
+        <span className="text-xs font-mono text-muted-foreground">Running for {elapsed}s…</span>
       </div>
 
-      {/* 4-stage checklist */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-        {STAGES.map((label, index) => {
-          const status = getStageStatus(index);
-          return (
-            <div
-              key={label}
-              className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-xs font-mono transition-colors ${
-                status === 'done'
-                  ? 'bg-slate-950/60 border-emerald-900/60 text-emerald-300'
-                  : status === 'running'
-                    ? 'bg-slate-950/80 border-sky-800/80 text-sky-200'
-                    : 'bg-slate-950/30 border-slate-800/50 text-slate-500'
-              }`}
-            >
-              <div className="w-4 h-4 flex items-center justify-center shrink-0">
-                {status === 'done' && (
-                  <span className="text-emerald-400 font-bold" data-testid={`stage-${index}-done`}>
-                    ✓
-                  </span>
-                )}
-                {status === 'running' && (
-                  <Loader2
-                    className="w-3.5 h-3.5 text-sky-400 animate-spin"
-                    data-testid={`stage-${index}-running`}
-                  />
-                )}
-                {status === 'waiting' && (
-                  <span
-                    className="text-slate-600 font-bold text-xs"
-                    data-testid={`stage-${index}-waiting`}
-                  >
-                    ●
-                  </span>
-                )}
+      <div className="p-5 bg-card border-t border-border rounded-[calc(0.75rem-1px)] space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {STAGES.map((label, index) => {
+            const status = getStageStatus(index);
+            return (
+              <div
+                key={label}
+                className={`flex items-center gap-2.5 p-2.5 rounded-lg text-xs transition-colors ${
+                  status === 'done'
+                    ? 'bg-risk-low-bg text-risk-low-fg'
+                    : status === 'running'
+                      ? 'bg-secondary text-foreground'
+                      : 'bg-input text-subtle-foreground'
+                }`}
+              >
+                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                  {status === 'done' && (
+                    <span className="text-risk-low-fg" data-testid={`stage-${index}-done`}>
+                      ✓
+                    </span>
+                  )}
+                  {status === 'running' && (
+                    <Loader2
+                      className="w-3.5 h-3.5 text-accent animate-spin"
+                      data-testid={`stage-${index}-running`}
+                    />
+                  )}
+                  {status === 'waiting' && (
+                    <span className="text-subtle-foreground" data-testid={`stage-${index}-waiting`}>
+                      ●
+                    </span>
+                  )}
+                </div>
+                <span className="truncate">{label}</span>
               </div>
-              <span className="truncate">{label}</span>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      {/* Disclaimer */}
-      <div className="text-[11px] text-slate-500 font-mono text-center pt-1 border-t border-slate-800/60">
-        Progress is approximate. Actual timing varies.
+        <div className="text-xs text-subtle-foreground text-center pt-2 border-t border-border">
+          Progress is approximate. Actual timing varies.
+        </div>
       </div>
     </div>
   );

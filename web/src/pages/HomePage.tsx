@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Shield, Zap, Search, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { NavBar } from '../components/NavBar';
+import { DnsGlobeGraphic } from '../components/DnsGlobeGraphic';
 import { PendingInvestigationCard } from '../components/PendingInvestigationCard';
 import { RateLimitBanner } from '../components/RateLimitBanner';
 import { usePublicFlow } from '../hooks/usePublicFlow';
@@ -19,23 +20,29 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <NavBar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16 flex flex-col items-center">
-        {/* Hero Section */}
-        <div className="text-center space-y-4 mb-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-sky-500/10 border border-sky-500/30 text-sky-400">
-            <Zap className="w-3.5 h-3.5" />
-            <span>Autonomous threat investigation — zero friction</span>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-14 flex flex-col items-center">
+        {/* Hero with subtle DNS Globe Mesh */}
+        <div className="relative w-full flex flex-col items-center text-center pt-4 pb-8 mb-6 overflow-hidden">
+          <div className="absolute inset-x-0 bottom-0 h-56 opacity-60 pointer-events-none">
+            <DnsGlobeGraphic />
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-            Inspect domain infrastructure risk instantly
-          </h1>
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Real-time DNS records, RDAP registration history, VirusTotal reputation, and an
-            autonomous AI analyst narrative. No account or API key required.
-          </p>
+
+          <div className="relative z-10 space-y-4 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs bg-band border border-border text-accent">
+              <Zap className="w-3.5 h-3.5" />
+              <span>Autonomous threat investigation — zero friction</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl tracking-tight text-foreground leading-tight">
+              Inspect domain infrastructure risk instantly
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+              Real-time DNS records, RDAP registration history, VirusTotal reputation, and a
+              deterministic risk score. No account or API key required.
+            </p>
+          </div>
         </div>
 
         {/* Rate limit banner */}
@@ -45,15 +52,35 @@ export const HomePage: React.FC = () => {
           </div>
         )}
 
-        {/* Domain Submission Form */}
-        <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl mb-8">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <label htmlFor="domain-input" className="block text-sm font-medium text-slate-300">
+        {/* Domain Submission Card (band + concentric card) */}
+        <div className="w-full rounded-xl bg-band border border-border overflow-hidden mb-8">
+          <div className="flex items-center justify-between px-5 py-2.5 text-xs text-muted-foreground">
+            <label htmlFor="domain-input" className="cursor-pointer">
               Investigate a domain
             </label>
+            <div className="hidden sm:flex items-center gap-1.5 font-mono text-subtle-foreground">
+              <span>Try:</span>
+              {['example.com', 'google.com'].map((sample) => (
+                <button
+                  key={sample}
+                  type="button"
+                  disabled={flow.stage === 'running'}
+                  onClick={() => setDomainInput(sample)}
+                  className="px-2 py-0.5 rounded-md bg-secondary hover:bg-secondary-hover text-secondary-foreground transition cursor-pointer disabled:opacity-40"
+                >
+                  {sample}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="p-5 sm:p-6 bg-card border-t border-border rounded-[calc(0.75rem-1px)]"
+          >
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-subtle-foreground">
                   <Search className="w-4 h-4" />
                 </div>
                 <input
@@ -65,13 +92,13 @@ export const HomePage: React.FC = () => {
                   placeholder="example.com or suspicious-domain.net"
                   value={domainInput}
                   onChange={(e) => setDomainInput(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 font-mono text-sm sm:text-base focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-input border border-border-strong text-foreground placeholder-muted-foreground/80 font-mono text-sm sm:text-base focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed transition"
                 />
               </div>
               <button
                 type="submit"
                 disabled={!domainInput.trim() || flow.stage === 'running'}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm sm:text-base font-semibold shadow-lg shadow-sky-900/20 transition cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-primary-foreground text-sm sm:text-base transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {flow.stage === 'running' ? (
                   <>
@@ -79,7 +106,10 @@ export const HomePage: React.FC = () => {
                     <span>Investigating…</span>
                   </>
                 ) : (
-                  <span>Investigate</span>
+                  <>
+                    <span>Investigate</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
                 )}
               </button>
             </div>
@@ -132,44 +162,44 @@ export const HomePage: React.FC = () => {
         )}
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mt-6 text-left">
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
-            <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mt-2 text-left">
+          <div className="p-5 rounded-xl bg-card border border-border">
+            <div className="w-8 h-8 rounded-lg bg-band border border-border flex items-center justify-center text-accent mb-3">
               <Search className="w-4 h-4" />
             </div>
-            <h2 className="text-sm font-semibold text-white mb-1">Deep DNS & RDAP</h2>
-            <p className="text-xs text-slate-400">
+            <h2 className="text-sm text-foreground mb-1">Deep DNS & RDAP</h2>
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Validates A, AAAA, MX, NS, and SPF records alongside registrar data and domain age.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-3">
+          <div className="p-5 rounded-xl bg-card border border-border">
+            <div className="w-8 h-8 rounded-lg bg-band border border-border flex items-center justify-center text-accent mb-3">
               <Shield className="w-4 h-4" />
             </div>
-            <h2 className="text-sm font-semibold text-white mb-1">VirusTotal Intel</h2>
-            <p className="text-xs text-slate-400">
+            <h2 className="text-sm text-foreground mb-1">VirusTotal intel</h2>
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Cross-checks domain reputation across 70+ threat intelligence engines.
             </p>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-3">
+          <div className="p-5 rounded-xl bg-card border border-border">
+            <div className="w-8 h-8 rounded-lg bg-band border border-border flex items-center justify-center text-accent mb-3">
               <Lock className="w-4 h-4" />
             </div>
-            <h2 className="text-sm font-semibold text-white mb-1">Shareable Reports</h2>
-            <p className="text-xs text-slate-400">
+            <h2 className="text-sm text-foreground mb-1">Shareable reports</h2>
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Instant 1-hour shareable URLs with full score gauges, rule traces, and narratives.
             </p>
           </div>
         </div>
 
         {/* Footer / API Link */}
-        <div className="mt-12 text-center text-xs text-slate-500 font-mono">
+        <div className="mt-10 text-center text-xs text-subtle-foreground">
           <span>Need programmatic access or background jobs? </span>
           <Link
             to="/dashboard"
-            className="text-sky-400 hover:text-sky-300 inline-flex items-center gap-1 font-medium underline underline-offset-4"
+            className="text-accent hover:text-primary-hover inline-flex items-center gap-1 transition"
           >
             Access API Dashboard
             <ArrowRight className="w-3 h-3" />

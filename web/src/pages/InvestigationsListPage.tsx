@@ -51,25 +51,21 @@ export const InvestigationsListPage: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-      {/* 1. Page Heading */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-white">Investigations</h1>
+          <h1 className="text-2xl tracking-tight text-foreground">Investigations</h1>
           {data && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+            <span className="px-2.5 py-0.5 rounded-md text-xs font-mono bg-secondary text-muted-foreground">
               {total}
             </span>
           )}
         </div>
       </div>
 
-      {/* 2. Stats Row (only if items > 0) */}
       {items.length > 0 && <StatsRow items={items} />}
 
-      {/* 3. Submission Form */}
       <SubmissionForm flow={flow} />
 
-      {/* 4. Pending Investigation Card */}
       <PendingInvestigationCard
         stage={flow.stage}
         onNavigate={(id) => navigate(`/investigations/${id}`)}
@@ -91,46 +87,45 @@ export const InvestigationsListPage: React.FC = () => {
 
       {!isLoading && !isError && items.length > 0 && (
         <>
-          <div className="overflow-x-auto border border-slate-800 rounded-xl bg-slate-900 shadow-xl">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950/60 border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400 font-mono">
-                <tr>
-                  <th className="py-3.5 px-4 font-semibold">Domain</th>
-                  <th className="py-3.5 px-4 font-semibold">Risk Level</th>
-                  <th className="py-3.5 px-4 font-semibold">Score</th>
-                  <th className="py-3.5 px-4 font-semibold text-right">Created</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {items.map((inv) => (
-                  <tr
-                    key={inv.id}
-                    onClick={() => handleRowClick(inv.id)}
-                    onKeyDown={(e) => handleKeyDown(e, inv.id)}
-                    tabIndex={0}
-                    role="button"
-                    className="hover:bg-slate-800/50 cursor-pointer transition focus:outline-none focus:bg-slate-800/70"
-                  >
-                    <td className="py-4 px-4 font-mono font-bold text-slate-100">{inv.domain}</td>
-                    <td className="py-4 px-4">
-                      <RiskBadge level={inv.risk_level} />
-                    </td>
-                    <td className="py-4 px-4">
-                      <ScoreGauge score={inv.risk_score} riskLevel={inv.risk_level} width={200} />
-                    </td>
-                    <td
-                      className="py-4 px-4 text-right text-xs text-slate-400 font-mono"
-                      title={inv.created_at}
-                    >
-                      {formatRelativeTime(inv.created_at)}
-                    </td>
+          <div className="rounded-xl bg-band border border-border overflow-hidden">
+            <div className="overflow-x-auto bg-card">
+              <table className="w-full text-left text-sm text-foreground">
+                <thead className="bg-band border-b border-border text-xs text-muted-foreground">
+                  <tr>
+                    <th className="py-3.5 px-4">Domain</th>
+                    <th className="py-3.5 px-4">Risk level</th>
+                    <th className="py-3.5 px-4">Score</th>
+                    <th className="py-3.5 px-4 text-right">Created</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {items.map((inv) => (
+                    <tr
+                      key={inv.id}
+                      onClick={() => handleRowClick(inv.id)}
+                      onKeyDown={(e) => handleKeyDown(e, inv.id)}
+                      tabIndex={0}
+                      role="button"
+                      className="hover:bg-band/60 cursor-pointer transition focus:outline-none focus:bg-band"
+                    >
+                      <td className="py-4 px-4 font-mono text-foreground">{inv.domain}</td>
+                      <td className="py-4 px-4">
+                        <RiskBadge level={inv.risk_level} />
+                      </td>
+                      <td className="py-4 px-4">
+                        <ScoreGauge score={inv.risk_score} riskLevel={inv.risk_level} width={200} />
+                      </td>
+                      <td className="py-4 px-4 text-right text-xs text-muted-foreground font-mono">
+                        {formatRelativeTime(inv.created_at)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between mt-4 text-xs text-slate-400 font-mono px-2">
+          <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground font-mono px-2">
             <div>
               Showing {startCount}–{endCount} of {total}
             </div>
@@ -138,14 +133,14 @@ export const InvestigationsListPage: React.FC = () => {
               <button
                 onClick={() => setOffset((prev) => Math.max(0, prev - PAGE_SIZE))}
                 disabled={offset === 0}
-                className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 transition"
+                className="px-3.5 py-1.5 rounded-xl bg-secondary hover:bg-secondary-hover disabled:opacity-40 disabled:cursor-not-allowed text-secondary-foreground transition cursor-pointer"
               >
                 Previous
               </button>
               <button
                 onClick={() => setOffset((prev) => prev + PAGE_SIZE)}
                 disabled={offset + PAGE_SIZE >= total}
-                className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 transition"
+                className="px-3.5 py-1.5 rounded-xl bg-secondary hover:bg-secondary-hover disabled:opacity-40 disabled:cursor-not-allowed text-secondary-foreground transition cursor-pointer"
               >
                 Next
               </button>

@@ -54,7 +54,7 @@ export const InvestigationDetailPage: React.FC = () => {
         <ErrorPanel message="Investigation not found." />
         <Link
           to="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-sky-400 hover:text-sky-300 font-medium mt-4"
+          className="inline-flex items-center gap-1.5 text-sm text-accent hover:text-primary-hover mt-4"
         >
           <ArrowLeft className="w-4 h-4" /> Back to investigations
         </Link>
@@ -72,7 +72,7 @@ export const InvestigationDetailPage: React.FC = () => {
         <div className="mt-4">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-1.5 text-sm text-sky-400 hover:text-sky-300 font-medium"
+            className="inline-flex items-center gap-1.5 text-sm text-accent hover:text-primary-hover"
           >
             <ArrowLeft className="w-4 h-4" /> Back to investigations
           </Link>
@@ -84,13 +84,12 @@ export const InvestigationDetailPage: React.FC = () => {
   const scoreResult = inv.assessment.score_result;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      {/* Header & Navigation */}
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div>
         <div className="flex items-center justify-between mb-4">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 hover:text-slate-200 transition"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to investigations
           </Link>
@@ -98,14 +97,13 @@ export const InvestigationDetailPage: React.FC = () => {
             type="button"
             onClick={() => flow.submit(inv.domain)}
             disabled={flow.stage.kind === 'submitting' || flow.stage.kind === 'polling'}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-200 border border-slate-700 transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs bg-secondary hover:bg-secondary-hover disabled:opacity-40 disabled:cursor-not-allowed text-secondary-foreground transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3.5 h-3.5 text-muted-foreground" />
             Re-run investigation
           </button>
         </div>
 
-        {/* Rate limit banner during re-run if applicable */}
         {flow.stage.kind === 'rate_limited' && (
           <div className="mb-4">
             <RateLimitBanner
@@ -115,45 +113,43 @@ export const InvestigationDetailPage: React.FC = () => {
           </div>
         )}
 
-        {/* Inline error during re-run if applicable */}
         {flow.formError && (
           <div
             role="alert"
-            className="text-xs font-mono font-medium text-rose-400 bg-rose-950/40 border border-rose-800/80 rounded-lg px-3.5 py-2.5 mb-4 flex items-center justify-between"
+            className="text-xs font-mono text-risk-critical-fg bg-risk-critical-bg border border-border rounded-xl px-3.5 py-2.5 mb-4 flex items-center justify-between"
           >
             <span>{flow.formError}</span>
             <button
               onClick={flow.dismiss}
-              className="text-rose-300 hover:text-rose-100 text-xs ml-4"
+              className="text-risk-critical-fg hover:text-foreground text-xs ml-4 cursor-pointer"
             >
               Dismiss
             </button>
           </div>
         )}
 
-        {/* Pending card during re-run */}
         <PendingInvestigationCard
           stage={flow.stage}
           onNavigate={(newId) => navigate(`/investigations/${newId}`)}
           onDismiss={flow.dismiss}
         />
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl space-y-4">
+        <div className="bg-card border border-border rounded-xl p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl sm:text-3xl font-bold font-mono text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-mono text-foreground tracking-tight">
                   {inv.domain}
                 </h1>
                 <RiskBadge level={scoreResult.risk_level} />
               </div>
-              <div className="flex items-center gap-3 mt-2 text-xs text-slate-400 font-mono">
-                <span className="flex items-center gap-1" title={inv.created_at}>
+              <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground font-mono">
+                <span className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" />
                   Investigated {formatRelativeTime(inv.created_at)}
                 </span>
                 <span>•</span>
-                <span className="text-slate-500">ID: {inv.id}</span>
+                <span className="text-subtle-foreground">ID: {inv.id}</span>
               </div>
             </div>
 
@@ -168,27 +164,23 @@ export const InvestigationDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Inconclusive checks if any */}
       {inv.assessment.inconclusive_checks.length > 0 && (
         <InconclusivePanel checks={inv.assessment.inconclusive_checks} />
       )}
 
-      {/* AI Narrative */}
       <NarrativeCard narrative={inv.assessment.narrative} />
 
-      {/* Rule Trace Table */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-white tracking-tight">Rule Evaluation Trace</h2>
+        <h2 className="text-base text-foreground tracking-tight">Rule evaluation trace</h2>
         <RuleTraceTable ruleHits={scoreResult.rule_hits} />
       </div>
 
-      {/* Deterministic Explanation */}
       {inv.assessment.rule_trace_explanation && (
-        <div className="space-y-2">
-          <h2 className="text-xs uppercase tracking-wider text-slate-400 font-semibold font-mono">
-            Deterministic Engine Trace
-          </h2>
-          <pre className="p-4 rounded-lg bg-slate-900/60 border border-slate-800 text-xs font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap leading-relaxed">
+        <div className="rounded-xl bg-band border border-border overflow-hidden">
+          <div className="px-4 py-2.5 text-xs text-muted-foreground">
+            Deterministic engine trace
+          </div>
+          <pre className="p-4 bg-card border-t border-border rounded-[calc(0.75rem-1px)] text-xs font-mono text-muted-foreground overflow-x-auto whitespace-pre-wrap leading-relaxed">
             {inv.assessment.rule_trace_explanation}
           </pre>
         </div>

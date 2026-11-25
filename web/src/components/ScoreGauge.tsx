@@ -28,12 +28,12 @@ export const ScoreGauge: React.FC<ScoreGaugeProps> = ({
       role="img"
       aria-label={`Risk score: ${score} out of 100`}
     >
-      {/* Background track */}
-      <rect x="0" y="4" width={width - 70} height="16" rx="4" className="fill-slate-800" />
+      {/* Neutral track */}
+      <rect x="0" y="5" width={width - 70} height="14" rx="6" fill="#12283f" />
 
-      {/* Progress fill */}
+      {/* Semantic progress fill */}
       {fillWidth > 0 && (
-        <rect x={barPadding} y="6" width={fillWidth} height="12" rx="2" fill={fillColor} />
+        <rect x={barPadding} y="6" width={fillWidth} height="12" rx="5" fill={fillColor} />
       )}
 
       {/* Tick marks at 25%, 50%, 75% */}
@@ -43,10 +43,10 @@ export const ScoreGauge: React.FC<ScoreGaugeProps> = ({
           <line
             key={tick}
             x1={xPos}
-            y1="4"
+            y1="5"
             x2={xPos}
-            y2="20"
-            stroke="#475569"
+            y2="19"
+            stroke="#234b73"
             strokeWidth="1"
             strokeDasharray="2 2"
           />
@@ -54,7 +54,7 @@ export const ScoreGauge: React.FC<ScoreGaugeProps> = ({
       })}
 
       {/* Numeric score label */}
-      <text x={width - 60} y="16" className="fill-slate-200 text-xs font-mono font-medium">
+      <text x={width - 60} y="16" className="fill-foreground text-xs font-mono">
         {`${clampedScore} / 100`}
       </text>
     </svg>

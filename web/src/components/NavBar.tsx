@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, KeyRound, LayoutDashboard, ArrowRight } from 'lucide-react';
+import { KeyRound, LayoutDashboard, ArrowRight } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
+import { BrandMark } from './BrandMark';
 
 export const NavBar: React.FC = () => {
   const { rawKey, clearKey } = useAuth();
@@ -13,44 +14,48 @@ export const NavBar: React.FC = () => {
   };
 
   return (
-    <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 group-hover:bg-sky-500/20 transition">
-            <Shield className="w-5 h-5" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-white font-mono">dnscope</span>
+        <Link
+          to="/"
+          aria-label="dnscope"
+          className="flex items-center gap-2.5 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          <BrandMark size="sm" />
+          <span className="text-[17px] tracking-tight text-foreground font-sans">
+            dn<span className="text-accent">scope</span>
+          </span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {rawKey ? (
             <>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-1.5 text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded transition hover:bg-slate-800"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-xl transition hover:bg-secondary cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                <LayoutDashboard className="w-3.5 h-3.5" />
+                <LayoutDashboard className="w-3.5 h-3.5 text-accent" />
                 Dashboard
               </Link>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono bg-emerald-950/60 border border-emerald-800 text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-risk-low-bg text-risk-low-fg">
+                <span className="w-1.5 h-1.5 rounded-full bg-risk-low-fg" />
                 Authenticated
               </span>
               <button
                 onClick={handleChangeKey}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded transition border border-slate-700 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs text-secondary-foreground bg-secondary hover:bg-secondary-hover rounded-xl transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                <KeyRound className="w-3.5 h-3.5" />
+                <KeyRound className="w-3.5 h-3.5 text-muted-foreground" />
                 Change key
               </button>
             </>
           ) : (
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded transition border border-slate-700 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs text-secondary-foreground bg-secondary hover:bg-secondary-hover px-3.5 py-1.5 rounded-xl transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               API access
-              <ArrowRight className="w-3.5 h-3.5 text-sky-400" />
+              <ArrowRight className="w-3.5 h-3.5 text-accent" />
             </Link>
           )}
         </div>
